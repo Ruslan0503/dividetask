@@ -148,7 +148,7 @@
                 <a href="#">Task Messages</a>
             </div>
             @if($user->role == 'assignment')
-                <div class="messages" onclick="openCertainDiv('create_task')">
+                <div class="messages" onclick="openCertainDiv('createtask')">
                     <a href="#">Create Task</a>
                 </div>
             @endif
