@@ -62,23 +62,20 @@ class DashboardController extends Controller
         // }
     }
 
-    public function saveTasks(Request $request){
+     public function saveTasks(Request $request) {
         $assigner = auth()->user();
-        $tasks = $request->json()->all();
-        foreach($tasks as $tas){
-            // echo $tas['task'] . "<br>";
-            // echo $tas['performerID'];
+        $tasks = $request->input('tasks'); // Forma orqali yuborilgan massivni olish
+    
+        foreach ($tasks as $task) {
             DB::table("tasks")->insert([
-                'TaskText'=>$tas['task'],
-                'assignerID'=>$assigner->id,
-                'performerID'=>$tas['performerID'],
-                'condition'=>'on started',
+                'TaskText'   => $task['task'],
+                'assignerID' => $assigner->id,
+                'performerID'=> $task['performerID'],
+                'condition'  => 'on started',
             ]);
         }
-        return response()->json([
-            'message' => 'Tasks received successfully!',
-            'tasks' => $tasks
-        ]);
+    
+        return redirect()->back()->with('msg', 'Tasks assigned successfully!');
     }
     
      /**
