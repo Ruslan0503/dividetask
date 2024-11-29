@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <head>
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
             body, html {
                 height: 100%;
@@ -183,26 +183,33 @@
             @if($user->role == 'assignment')
                 <div class="createtask" id="createtask" style="display: none;">
                     <h3>Create Tasks Here</h3>
-                    <div>
-                        <div class="tasknth">
-                            <input type="text" name="task1" id="task1" placeholder="Enter task">
-                            <label for="performers">Choose a performer:</label>
-                            <select id="performers" name="performers">
-                                @foreach($workers as $worker)
-                                    <option value="{{ $worker->performerID }}">{{ $worker->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+                    <form id="taskForm" action="{{ route('saveTasks') }}" method="POST">
+    @csrf
+    <div id="taskFields">
+        <div class="tasknth">
+            <input type="text" name="tasks[0][task]" placeholder="Enter task" required>
+            <label for="performers">Choose a performer:</label>
+            <select name="tasks[0][performerID]" required>
+                @foreach($workers as $worker)
+                    <option value="{{ $worker->performerID }}">{{ $worker->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+    <div class="btns">
+        <button type="button" onclick="addTaskField()" style="background-color:green; ">Add Task</button>
+        <button type="submit">Assign Tasks</button>
+    </div>
+</form>
 
-                    <div class="btns" style="margin-top:5px;">
-                        <button onclick="createTaskField()" style="background-color: #28a745;">Add</button>
-                        <button onclick="sendTasks()">Assign Tasks</button>
-                    </div>
-                </div>
             @endif
         </div>
     </div>
+    @if (session('msg'))
+    <script>
+        alert("{{ session('msg') }}");
+    </script>
+@endif
 
     <script>
         window.onload = function() {
@@ -228,45 +235,70 @@
         }
 
         function sendTasks() {
-            let taskss = [];
-            document.querySelectorAll(".tasknth").forEach(it => {
-                let task = it.querySelector("input").value;
-                let performerID = it.querySelector("select").value;
-                taskss.push({ task, performerID });
-            });
+            console.log(document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+            console.log("Fetch URL:", "{{ route('saveTasks') }}");
 
-            fetch(`{{ route('saveTasks') }}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                },
-                body: JSON.stringify(taskss),
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data['message']);
-            })
-            .catch(() => {
-                alert('Error sending tasks');
-            });
+                let taskss = [];
+                document.querySelectorAll(".tasknth").forEach(it => {
+                    let task = it.querySelector("input").value.trim();
+                    let performerID = it.querySelector("select").value;
+
+                    // Bo'sh topshiriqni e'tiborsiz qoldirish
+                    if (task && performerID) {
+                        taskss.push({ task, performerID });
+                    }
+                });
+
+                // Agar hech qanday topshiriq bo'lmasa, xato ko'rsatiladi
+                if (taskss.length === 0) {
+                    alert('Please add at least one task with a performer.');
+                    return;
+                }
+
+                fetch("{{ route('saveTasks') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                    body: JSON.stringify(taskss),
+                })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Server Response:", data);
+                    alert(data['message']);
+                })
+                .catch((error)=>{
+                    alert('error');
+                })
+                
+
+
         }
 
-        let count = 2;
-        function createTaskField() {
-            let newone = `
-                <div class="tasknth">
-                    <input type="text" name="task${count}" id="task${count}" placeholder="Enter task">
-                    <label for="performers">Choose a performer:</label>
-                    <select id="performers" name="performers">
-                        @foreach($workers as $worker)
-                            <option value="{{ $worker->performerID }}">{{ $worker->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            `;
-            document.getElementById("create_task2").insertAdjacentHTML('beforeend', newone);
-            count++;
-        }
+
+        let taskIndex = 1;
+
+function addTaskField() {
+    const taskFields = document.getElementById("taskFields");
+
+    const newTaskField = `
+        <div class="tasknth">
+            <input type="text" name="tasks[${taskIndex}][task]" placeholder="Enter task" required>
+            <label for="performers">Choose a performer:</label>
+            <select name="tasks[${taskIndex}][performerID]" required>
+                @foreach($workers as $worker)
+                    <option value="{{ $worker->performerID }}">{{ $worker->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    `;
+
+    taskFields.insertAdjacentHTML('beforeend', newTaskField);
+    taskIndex++;
+}
+
     </script>
 </x-app-layout>
