@@ -19,7 +19,6 @@ return new class extends Migration
             $table->foreignID("assignerID")->constrained("users")->onDelete("cascade");
             $table->foreignID("performerID")->constrained("users")->onDelete("cascade");
             $table->string("condition")->default("started");
-            $table->date("deadline");
             $table->timestamps();
         });
     }
