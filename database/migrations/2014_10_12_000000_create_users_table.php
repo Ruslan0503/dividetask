@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->enum('role', ['performer', 'assignment']); // Add the role column
+            $table->string('image');
             $table->timestamps();
         });
     }
