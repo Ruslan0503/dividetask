@@ -103,16 +103,20 @@
             <p class="tab-text">Finding Employer</p>
         </div>
     </div>
-
+    
     <!-- Horizontal line separator -->
     <hr class="separator">
-
+    <input type="text" name="search" id="search" placeholder="search" style="font-size:30px; border-radius:5px; margin-bottom:5px;">
     <!-- Content Section -->
     <div class="content">
+    
         <div id="employee" class="content-tab">
         @foreach($employees as $employee)
             <div class="contact" style="display: flex; justify-content: space-between; align-items: center;">
-                <p style="color:blue;">@_{{ $employee->name }}</p>
+            <div style="display:flex;">
+            <img src="{{ asset('storage/' . $employee->image) }}" alt="Profile Image" width="50" height="50" style="border-radius:50%;">    
+            <p style="color:blue;">@_{{ $employee->name }}</p>
+            </div>
                 <div style="display:flex; gap:20px;">
                     @if($user->role != 'performer')
                         <a href="/requestofassigner/{{$employee->id}}">Add Contact</a>
@@ -139,6 +143,20 @@
     </div>
 </div>
 
+<script>
+    document.getElementById('search').addEventListener('input', (event) => {
+    let x = document.getElementById('search').value.toLowerCase();  // Convert to lowercase for case-insensitive matching
+    document.querySelectorAll('.contact').forEach(item => {
+        let name = item.querySelector('p').innerText.toLowerCase();  // Convert name to lowercase for case-insensitive matching
+        if (name.includes(x)) {  // Use includes for partial matching
+            item.style.display = "flex";  // Show the item if it matches the search input
+        } else {
+            item.style.display = "none";  // Hide the item if it doesn't match
+        }
+    });
+});
+
+</script>
 
 <script>
     
