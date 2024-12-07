@@ -147,11 +147,17 @@
             <div class="messages" onclick="openCertainDiv('taskmsgs')">
                 <a href="#">Task Messages</a>
             </div>
-            @if($user->role == 'assignment')
+
+            @if(auth()->user()->hasAnyRole(['admin', 'create task']))
                 <div class="messages" onclick="openCertainDiv('createtask')">
                     <a href="#">Create Task</a>
                 </div>
             @endif
+            <!-- @if($user->role == 'assignment')
+                <div class="messages" onclick="openCertainDiv('createtask')">
+                    <a href="#">Create Task</a>
+                </div>
+            @endif -->
         </div>
 
         <div class="right">
