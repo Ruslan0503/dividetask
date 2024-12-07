@@ -1,7 +1,21 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
+    <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
         @csrf
 
+        <div style="justify-content:center; display:flex;">
+            <p><img src="https://cdn-icons-png.flaticon.com/128/10441/10441736.png" alt="" name="image" id="image" style="border-radius:50%; width:150px; height:150px;"></p>
+            <input type="file" name="img" id="img" style="display:none;">
+        </div>
+        
+        <script>
+            document.getElementById('image').onclick = ()=>{
+                document.getElementById('img').click();
+            }
+            document.getElementById('img').addEventListener('change', (event)=>{
+                const file = event.target.files[0];
+                document.getElementById('image').src = URL.createObjectURL(event.target.files[0]);
+            })
+        </script>
         <!-- Name -->
         <div>
             <x-input-label for="name" :value="__('Name')" />
